@@ -1,4 +1,4 @@
-## Implementing Authentication and Authorization Using Spring Security and JWT
+## Implementing Authentication and Authorization Using Spring Security 6.x and JWT
 
 ---
 #### 24.06.17 Developed By uijin kim  

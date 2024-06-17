@@ -23,7 +23,7 @@ public class SecurityConfig {
         // 경로별 인가 여부
         httpSecurity
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join").permitAll()
+                        .requestMatchers("/login", "/api/v1/user/join").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
 

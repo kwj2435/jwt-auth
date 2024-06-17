@@ -15,7 +15,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
+    @PostMapping("/join")
     public UserModel.UserResponse postUser(@RequestBody UserModel.UserRequest userRequest) {
         return userService.addUser(userRequest);
     }

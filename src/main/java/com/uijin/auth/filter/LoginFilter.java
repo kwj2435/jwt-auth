@@ -13,6 +13,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 
+/**
+ * LoginFilter의 경우 UsernamePasswordAuthenticationFilter를 상속 받아 만들었기 때문에
+ * 기본적으로 설정된 POST '/login' 경로에만 동작한다.
+ */
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -46,6 +50,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 로그인 실패시 호출
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        super.unsuccessfulAuthentication(request, response, failed);
+        response.setStatus(401);
     }
 }
