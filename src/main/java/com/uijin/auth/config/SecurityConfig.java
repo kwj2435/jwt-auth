@@ -1,5 +1,6 @@
 package com.uijin.auth.config;
 
+import com.uijin.auth.filter.ExceptionHandlerFilter;
 import com.uijin.auth.filter.JwtFilter;
 import com.uijin.auth.filter.LoginFilter;
 import com.uijin.auth.utils.JwtUtils;
@@ -40,6 +41,7 @@ public class SecurityConfig {
 
         // 필터 추가
         httpSecurity
+                .addFilterBefore(new ExceptionHandlerFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtFilter(jwtUtils), LoginFilter.class)
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
 

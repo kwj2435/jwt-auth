@@ -14,4 +14,4 @@ spring:
     url: jdbc:mysql://localhost:3306/jwtauth?serverTimezone=UTC&characterEncoding=UTF-8
 
   jwt:
-    secret: secr!!f32
+    secret: SeCr!2TK2y!@#@amzp23!!9azzcSDSSD123332

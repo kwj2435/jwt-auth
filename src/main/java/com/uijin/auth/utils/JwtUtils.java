@@ -1,6 +1,7 @@
 package com.uijin.auth.utils;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,7 @@ public class JwtUtils {
 
     private SecretKey secretKey;
 
-    public JwtUtils(@Value("${spring.jwt.secret")String secretKey) {
+    public JwtUtils(@Value("${spring.jwt.secret}")String secretKey) {
         this.secretKey =
                 new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
@@ -30,7 +31,6 @@ public class JwtUtils {
     }
 
     public Boolean isExpired(String token) {
-
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
