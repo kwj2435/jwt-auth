@@ -44,6 +44,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 로그인 성공시 호출
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        // token 발급 AT, RT
         super.successfulAuthentication(request, response, chain, authResult);
     }
 

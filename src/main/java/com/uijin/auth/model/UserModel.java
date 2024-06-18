@@ -22,6 +22,8 @@ public class UserModel {
     @Getter
     @AllArgsConstructor
     public static class UserResponse{
+        private long userId;
+
         private String userName;
 
         private UserRole userRole;

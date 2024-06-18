@@ -29,6 +29,6 @@ public class UserEntity {
     private UserRole userRole;
 
     public UserModel.UserResponse toUserDto() {
-        return new UserModel.UserResponse(userName, userRole);
+        return new UserModel.UserResponse(userId, userName, userRole);
     }
 }

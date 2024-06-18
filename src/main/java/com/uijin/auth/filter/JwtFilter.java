@@ -28,18 +28,21 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     // Request의 Authorization 헤더에 포함된 토큰을 추출하여 검증을 진행한다.
+    // 인증된 사용자 정보를 SecurityContextHolder에 저장되며, 이 후 로직에서 해당 요청이 인증 완료된 요청으로 간주되어 통과한다.
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
 
         if(authorization == null || !authorization.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
+            return;
         }
 
         String token = authorization.split(" ")[1];
 
         if (jwtUtils.isExpired(token)) {
             filterChain.doFilter(request, response);
+            return;
         }
 
         String username = jwtUtils.getUsername(token);
