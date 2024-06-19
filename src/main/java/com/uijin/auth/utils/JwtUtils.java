@@ -34,11 +34,24 @@ public class JwtUtils {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(String username, String role, Long expiredMs) {
+    public String createAccessToken(long userId, String username, String role) {
+        long expiredMs = 1000 * 60 * 15;    // 15분
+        return Jwts.builder()
+                .subject(username)
+                .claim("userId", userId)
+                .claim("role", role)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String createRefreshToken(long userId, String username) {
+        long expiredMs = 1000 * 60 * 60 * 24 * 10;  // 10일
 
         return Jwts.builder()
-                .claim("username", username)
-                .claim("role", role)
+                .subject(username)
+                .claim("userId", userId)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey)

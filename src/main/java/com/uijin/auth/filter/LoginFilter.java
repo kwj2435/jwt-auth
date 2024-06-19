@@ -1,5 +1,8 @@
 package com.uijin.auth.filter;
 
+import com.uijin.auth.entity.UserEntity;
+import com.uijin.auth.model.CustomUserDetails;
+import com.uijin.auth.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +15,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 /**
  * LoginFilter의 경우 UsernamePasswordAuthenticationFilter를 상속 받아 만들었기 때문에
@@ -21,6 +25,7 @@ import java.io.IOException;
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     // UserDetailsService Bean 사용
+    private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
     // UsernamePasswordAuthenticationToken 클래스의 객체는 두번 생성되는데 다음과 같은 경우이다.
@@ -44,8 +49,22 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 로그인 성공시 호출
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        // token 발급 AT, RT
-        super.successfulAuthentication(request, response, chain, authResult);
+        CustomUserDetails principal = (CustomUserDetails) authResult.getPrincipal();
+        long userId = principal.getUserId();
+        String username = principal.getUsername();
+        String role = principal.getAuthorities().stream().toList().get(0).getAuthority();
+
+        String accessToken = jwtUtils.createAccessToken(userId, username, role);
+        String refreshToken = jwtUtils.createRefreshToken(userId, username);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("authorization", "Bearer " + accessToken);
+        response.setHeader("refresh-token", refreshToken);
+
+        // 해당 부분을 주석처리 하지 않으면 기존 formlogin 동작 로직이 실행되어, 로그인후 기본 경로 '/' 로 리다이렉션된다.
+        // RestApi 방식으로 사용하기 위해서는 주석 필요
+//        super.successfulAuthentication(request, response, chain, authResult);
     }
 
     // 로그인 실패시 호출

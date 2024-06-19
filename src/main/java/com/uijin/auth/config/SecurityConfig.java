@@ -35,7 +35,7 @@ public class SecurityConfig {
         // 경로별 인가 여부
         httpSecurity
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/api/v1/user/join", "/error").permitAll()
+                        .requestMatchers("/login", "/api/v1/user/join", "/error", "/").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
 
@@ -43,7 +43,7 @@ public class SecurityConfig {
         httpSecurity
                 .addFilterBefore(new ExceptionHandlerFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtFilter(jwtUtils), LoginFilter.class)
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(jwtUtils, authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
 
         // 세션 설정
         httpSecurity

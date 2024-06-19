@@ -2,17 +2,20 @@ package com.uijin.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uijin.auth.enums.FilterErrorCode;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
 
     @Override
@@ -21,6 +24,8 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (SignatureException se) {
             setErrorResponse(response, FilterErrorCode.INVALID_SIGNATUER);
+        } catch (ExpiredJwtException ee) {
+            setErrorResponse(response, FilterErrorCode.EXPIRED_JWT);
         }
     }
 
@@ -29,6 +34,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         ErrorResponse errorResponse = new ErrorResponse(errorCode.getCode(), errorCode.getMessage());
+
         try{
             response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
         }catch (IOException e){

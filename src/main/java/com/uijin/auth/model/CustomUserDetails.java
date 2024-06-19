@@ -3,9 +3,11 @@ package com.uijin.auth.model;
 import com.uijin.auth.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
@@ -14,9 +16,10 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(new SimpleGrantedAuthority(userEntity.getUserRole().getRole()));
     }
 
+    public long getUserId() { return userEntity.getUserId(); }
     @Override
     public String getPassword() {
         return userEntity.getPassword();

@@ -4,6 +4,7 @@ import com.uijin.auth.entity.UserEntity;
 import com.uijin.auth.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class UserModel {
 
@@ -14,8 +15,13 @@ public class UserModel {
 
         private String password;
 
-        public UserEntity toEntity() {
-            return new UserEntity(null, this.userName, this.password, UserRole.USER);
+        public UserEntity toEntity(BCryptPasswordEncoder passwordEncoder) {
+            return new UserEntity(
+                    null,
+                    this.userName,
+                    passwordEncoder.encode(this.password),
+                    UserRole.USER
+            );
         }
     }
 

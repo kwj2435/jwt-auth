@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum FilterErrorCode {
-    INVALID_SIGNATUER(HttpStatus.UNAUTHORIZED, "f_402_10000", "Invalid JWT");
+    INVALID_SIGNATUER(HttpStatus.UNAUTHORIZED, "F_401_10000", "Invalid JWT"),
+    EXPIRED_JWT(HttpStatus.UNAUTHORIZED, "F_401_10001", "JWT Expired");
 
     private HttpStatus httpStatus;
     private String code;
