@@ -1,21 +1,20 @@
 package com.uijin.auth.filter;
 
-import com.uijin.auth.entity.UserEntity;
+import com.uijin.auth.event.AuthenticationSuccessEvent;
 import com.uijin.auth.model.CustomUserDetails;
 import com.uijin.auth.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.io.IOException;
-import java.util.stream.Collectors;
 
 /**
  * LoginFilter의 경우 UsernamePasswordAuthenticationFilter를 상속 받아 만들었기 때문에
@@ -27,6 +26,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // UserDetailsService Bean 사용
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     // UsernamePasswordAuthenticationToken 클래스의 객체는 두번 생성되는데 다음과 같은 경우이다.
     // 1. 로그인 인증 전 - 로그인 시 입력받은 정보를 담아서 전달할 때 사용
@@ -61,6 +61,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setCharacterEncoding("UTF-8");
         response.setHeader("authorization", "Bearer " + accessToken);
         response.setHeader("refresh-token", refreshToken);
+
+        // Refresh Token을 DB에 저장하기 위한 Event 발행
+        // Filter에서 Service Layer를 호출하는 것은 권장되지 않는 설계구조로 판단하여, 이벤트 발행을 통한 RT의 DB 저장 구현
+        applicationEventPublisher.publishEvent(new AuthenticationSuccessEvent(this, refreshToken, authResult));
 
         // 해당 부분을 주석처리 하지 않으면 기존 formlogin 동작 로직이 실행되어, 로그인후 기본 경로 '/' 로 리다이렉션된다.
         // RestApi 방식으로 사용하기 위해서는 주석 필요

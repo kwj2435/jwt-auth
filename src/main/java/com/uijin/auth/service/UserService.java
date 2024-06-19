@@ -5,6 +5,7 @@ import com.uijin.auth.enums.ApiExceptionCode;
 import com.uijin.auth.exception.BaseApiException;
 import com.uijin.auth.model.UserModel;
 import com.uijin.auth.repository.UserRepository;
+import com.uijin.auth.repository.UserTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +19,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserTokenRepository userTokenRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional

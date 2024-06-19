@@ -1,7 +1,8 @@
 package com.uijin.auth.utils;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,17 +22,19 @@ public class JwtUtils {
     }
 
     public String getUsername(String token) {
-        return Jwts.parser().verifyWith(secretKey)
-                .build().parseSignedClaims(token).getPayload().get("username", String.class);
+        return getClaims(token).getPayload().get("username", String.class);
     }
 
     public String getRole(String token) {
-
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
+        return getClaims(token).getPayload().get("role", String.class);
     }
 
     public Boolean isExpired(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        return getClaims(token).getPayload().getExpiration().before(new Date());
+    }
+
+    public Jws<Claims> getClaims(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
     }
 
     public String createAccessToken(long userId, String username, String role) {

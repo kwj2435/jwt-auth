@@ -1,5 +1,6 @@
 package com.uijin.auth.exception;
 
+import org.hibernate.PropertyValueException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -12,8 +13,9 @@ public class ExceptionController {
         return new ResponseEntity<>(new BaseErrorResponse(e.getCode(), e.getMessage()), e.getStatus());
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<BaseErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(new BaseErrorResponse("code101", e.getMessage()));
+    // 필드 유효성 체크
+    @ExceptionHandler(PropertyValueException.class)
+    public ResponseEntity<BaseErrorResponse> handlerPropertyValueException(PropertyValueException e) {
+        return ResponseEntity.badRequest().body(new BaseErrorResponse("400_000000", e.getMessage()));
     }
 }
