@@ -1,6 +1,8 @@
 package com.uijin.auth.service;
 
 import com.uijin.auth.entity.UserEntity;
+import com.uijin.auth.enums.ApiExceptionCode;
+import com.uijin.auth.exception.BaseApiException;
 import com.uijin.auth.model.UserModel;
 import com.uijin.auth.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -24,9 +26,8 @@ public class UserService {
         Optional<UserEntity> user = userRepository.findByUserName(userRequest.getUserName());
 
         if(user.isPresent()) {
-            throw new InvalidParameterException("Already Registered Username");
+            throw BaseApiException.of(ApiExceptionCode.ALREADY_REGISTERED_USER);
         }
-
         UserEntity userRegistEntity = userRequest.toEntity(passwordEncoder);
 
         return userRepository.save(userRegistEntity).toUserDto();

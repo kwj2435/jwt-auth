@@ -1,14 +1,14 @@
 package com.uijin.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uijin.auth.enums.FilterErrorCode;
+import com.uijin.auth.enums.FilterExceptionCode;
+import com.uijin.auth.exception.BaseErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,29 +23,23 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (SignatureException se) {
-            setErrorResponse(response, FilterErrorCode.INVALID_SIGNATUER);
+            setErrorResponse(response, FilterExceptionCode.INVALID_SIGNATUER);
         } catch (ExpiredJwtException ee) {
-            setErrorResponse(response, FilterErrorCode.EXPIRED_JWT);
+            setErrorResponse(response, FilterExceptionCode.EXPIRED_JWT);
         }
     }
 
-    private void setErrorResponse(HttpServletResponse response, FilterErrorCode errorCode) {
+    private void setErrorResponse(HttpServletResponse response, FilterExceptionCode errorCode) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        ErrorResponse errorResponse = new ErrorResponse(errorCode.getCode(), errorCode.getMessage());
+        BaseErrorResponse errorResponse = new BaseErrorResponse(errorCode.getCode(), errorCode.getMessage());
 
         try{
             response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
         }catch (IOException e){
-            e.printStackTrace();
+            log.error(e.getMessage());
+            throw e;
         }
-    }
-
-    // todo 임시
-    @Data
-    public static class ErrorResponse{
-        private final String code;
-        private final String message;
     }
 }

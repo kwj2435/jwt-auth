@@ -3,14 +3,14 @@ package com.uijin.auth.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 @Getter
 @AllArgsConstructor
-public enum FilterErrorCode {
-    INVALID_SIGNATUER(HttpStatus.UNAUTHORIZED, "F_401_10000", "Invalid JWT"),
-    EXPIRED_JWT(HttpStatus.UNAUTHORIZED, "F_401_10001", "JWT Expired");
+public enum ApiExceptionCode {
+    ALREADY_REGISTERED_USER(HttpStatus.BAD_REQUEST, "400_100000", "");
 
-    private HttpStatus httpStatus;
+    private HttpStatus status;
     private String code;
     private String message;
 }
