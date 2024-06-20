@@ -27,6 +27,12 @@ public class JwtFilter extends OncePerRequestFilter {
         this.jwtUtils = jwtUtils;
     }
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return "/api/v1/auth/refresh".equals(path);
+    }
+
     // Request의 Authorization 헤더에 포함된 토큰을 추출하여 검증을 진행한다.
     // 인증된 사용자 정보를 SecurityContextHolder에 저장되며, 이 후 로직에서 해당 요청이 인증 완료된 요청으로 간주되어 통과한다.
     @Override

@@ -1,8 +1,9 @@
 package com.uijin.auth.security.utils;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
+import com.uijin.auth.security.enums.ApiExceptionCode;
+import com.uijin.auth.security.exception.BaseApiException;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,7 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    private SecretKey secretKey;
+    private final SecretKey secretKey;
 
     public JwtUtils(@Value("${spring.jwt.secret}")String secretKey) {
         this.secretKey =
@@ -29,8 +30,8 @@ public class JwtUtils {
         return getClaims(token).getPayload().get("role", String.class);
     }
 
-    public String getClaim(String token, String claimName) {
-        return getClaims(token).getPayload().get(claimName, String.class);
+    public Integer getUserId(String token) {
+        return getClaims(token).getPayload().get("userId", Integer.class);
     }
 
     public Boolean isExpired(String token) {
@@ -41,10 +42,23 @@ public class JwtUtils {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
     }
 
+    // 만료된 토큰의 claim은 exception에서 가져올 수 있다.
+    public Claims getClaimsFromExpiredToken(String token) {
+        try {
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        } catch (SignatureException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            throw BaseApiException.of(ApiExceptionCode.INVALID_TOKEN);
+        }
+
+        return null;
+    }
+
     public String createAccessToken(long userId, String username, String role) {
 //        long expiredMs = 1000 * 60 * 15;    // 15분
         long expiredMs = 1000;    // 15분
-        return Jwts.builder()
+        return "Bearer " + Jwts.builder()
                 .subject(username)
                 .claim("userId", userId)
                 .claim("role", role)

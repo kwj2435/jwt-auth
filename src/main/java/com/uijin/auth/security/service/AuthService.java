@@ -5,9 +5,11 @@ import com.uijin.auth.security.enums.ApiExceptionCode;
 import com.uijin.auth.security.exception.BaseApiException;
 import com.uijin.auth.user.repository.UserTokenRepository;
 import com.uijin.auth.security.utils.JwtUtils;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,22 +21,23 @@ public class AuthService {
 
   @Transactional
   public void regenerateToken(String accessToken, String refreshToken, HttpServletResponse response) {
-    if(!jwtUtils.isExpired(accessToken)) {
+    Claims userClaims = jwtUtils.getClaimsFromExpiredToken(accessToken);
+
+    if(userClaims == null) {
       throw BaseApiException.of(ApiExceptionCode.NOT_EXPIRED_TOKEN);
     }
-
     if(jwtUtils.isExpired(refreshToken)) {
       throw BaseApiException.of(ApiExceptionCode.RETRY_LOGIN);
     }
 
-    long userId = Long.parseLong(jwtUtils.getClaim(accessToken, "userId"));
-    String userName = jwtUtils.getClaim(accessToken, "username");
-    String role = jwtUtils.getClaim(accessToken, "role");
+    long userId = (int)userClaims.get("userId");
+    String userName = userClaims.getSubject();
+    String role = (String)userClaims.get("role");
 
-    long rtUserId = Long.parseLong(jwtUtils.getClaim(refreshToken, "userId"));
-    String rtUserName = jwtUtils.getClaim(refreshToken, "username");
+    long rtUserId = jwtUtils.getUserId(refreshToken);
+    String rtUserName = jwtUtils.getUsername(refreshToken);
 
-    if(userId != rtUserId || userName != rtUserName) {
+    if(userId != rtUserId || StringUtils.equals(userName, rtUserName)) {
       throw BaseApiException.of(ApiExceptionCode.INVALID_TOKEN);
     }
 
