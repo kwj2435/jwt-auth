@@ -55,7 +55,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = principal.getAuthorities().stream().toList().get(0).getAuthority();
 
         String accessToken = jwtUtils.createAccessToken(userId, username, role);
-        String refreshToken = jwtUtils.createRefreshToken(userId, username);
+        String refreshToken = jwtUtils.createRefreshToken();
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

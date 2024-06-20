@@ -68,12 +68,12 @@ public class JwtUtils {
                 .compact();
     }
 
-    public String createRefreshToken(long userId, String username) {
+    // refreshToken은 유효시간외에는 아무 정보도 담지 않고 있기 때문에, DB에 저장해놓고, 요청 헤더에 담긴 Refresh Token이 해당 사용자의
+    // Refresh Token이 맞는지 검증해야한다.
+    public String createRefreshToken() {
         long expiredMs = 1000 * 60 * 60 * 24 * 10;  // 10일
 
         return Jwts.builder()
-                .subject(username)
-                .claim("userId", userId)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey)

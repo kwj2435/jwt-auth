@@ -34,17 +34,16 @@ public class AuthService {
     String userName = userClaims.getSubject();
     String role = (String)userClaims.get("role");
 
-    long rtUserId = jwtUtils.getUserId(refreshToken);
-    String rtUserName = jwtUtils.getUsername(refreshToken);
+    UserTokenEntity userTokenEntity = userTokenRepository.findById(userId)
+            .orElseThrow(() -> BaseApiException.of(ApiExceptionCode.INVALID_TOKEN));
 
-    if(userId != rtUserId || StringUtils.equals(userName, rtUserName)) {
+    if(!StringUtils.equals(refreshToken, userTokenEntity.getRefreshToken())) {
       throw BaseApiException.of(ApiExceptionCode.INVALID_TOKEN);
     }
 
     String newAccessToken = jwtUtils.createAccessToken(userId, userName, role);
-    String newRefreshToken = jwtUtils.createRefreshToken(userId, userName);
+    String newRefreshToken = jwtUtils.createRefreshToken();
 
-    UserTokenEntity userTokenEntity = userTokenRepository.findById(userId).orElseThrow();
     userTokenEntity.updateRefreshToken(newRefreshToken);
 
     response.setHeader("Authorization", newAccessToken);
